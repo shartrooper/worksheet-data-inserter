@@ -1,0 +1,55 @@
+Hematología*
+Hb: Hemoglobina
+Hct: Hematocrito 
+VCM: V.C.M. (Volumen Medio)
+HCM: H.C.M. (Hemoglobina Media)
+CHCM: C.H C M (Concentracion Media)
+A.D.E.: A.D.E.
+Leucocitos: Recuento Leucocitos
+RAN totales: Neutrofilos totales
+RAL totales: Linfocitos totales
+MN totales: Monocitos totales
+EOS totales: Eosinofilos totales
+Plaquetas: Plaquetas (recuento)
+VHS: vhs 
+ELECTROLITOS PLASMÁTICOS*
+Cloro: cloro
+Potasio: potasio
+Sodio: sodio
+Ca Iónico: calcio Iónico
+PERFIL BIOQUÍMICO*
+Ferritina: ferritinina
+Ácido Urico: acido urico
+Calcio total: calcio
+LDH: lactato deshidrogenasa
+Fostoro: fosforo
+BUN:Nitrogeno ureico
+Urea: urea
+Albumina: albumina
+Proteinas Totales: proteinas totales
+PCR: Proteinas c reactiva
+Creatinina: Creatinina 
+PRUEBAS HEPÁTICAS*
+Bil Total: bilirrubina total
+Bil Directa: bilirrubina directa
+FA: fosfatasa alcalina
+GGT: ggt
+GOT: got
+GPT: gpt
+CINÉTICA DEL FIERRO*
+Fierro: fierro
+U.I.B.C: u.i.b.c
+T.I.B.C: t.i.b.c
+% Sat Transferrina: %  saturación de transferrina
+transferrina: transferrina
+VOLUMEN FILTRADO GLOMERULAR*
+TP: porcentaje tp
+INR: inr
+TTPA: ttpa
+GASES EN SANGRE*
+pH: ph
+PCO2: p co2
+PO2: p o2
+HCO3: hco3
+Ex. Base: ex. Base
+SatPO2: saturacion de o2
