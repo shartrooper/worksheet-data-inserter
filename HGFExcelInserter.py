@@ -1,4 +1,4 @@
-import datetime,logging,re
+﻿import datetime,logging,re
 from openpyxl.styles import Font, Alignment, Border, Side
 import electronbloodTestsInserterv2 as ebt
 
@@ -80,7 +80,7 @@ class GetHeaderContent:
         self.__reportDate=None
         self.__wsDate=None
         self.__wsTime=None
-        self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[1-9])[\/-]([0-1]?[1-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
+        self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
         self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+)",re.IGNORECASE)
         self.__searchAndSetHeaderParams()        
     
