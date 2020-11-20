@@ -13,8 +13,23 @@ class StyleUtilities:
         for char in charList:
             charRegex = re.compile(rf"{char}")
             testname = charRegex.sub(char, testname)
+        isTransferrinaRegex=re.compile(r"^transferrina$",re.IGNORECASE)
+        if isTransferrinaRegex.search(testname):
+            return "(?<!% saturacion de )transferrina"
         return testname
-
+    
+    def strIntoNum(self,label,num):
+        #remove blank space and asterisks between thousand unit (1000) and cent unit (100).
+        num=re.sub('\s','',num)
+        num=re.sub('\*','',num)
+        num=float(num)
+        #round into two decimals max, apply pH exception.
+        if num.is_integer():
+            return int(num)
+        elif label == 'pH':
+            return float(num)
+        return round(num,2)
+    
     def getTotalLength(self,glossary):
         count = 0
         for category in glossary:
@@ -29,17 +44,17 @@ class StyleUtilities:
             start_row=ws[coordinate].row,
             start_column=ws[coordinate].column + 1,
             end_row=ws[coordinate].row,
-            end_column=8,
+            end_column=13,
         )
-        nameCell.font = Font(underline=line, name="Arial", size=12)
-        nameCell.alignment = Alignment(horizontal="left", vertical="justify")
+        nameCell.font = Font(underline=line, name="Arial", size=8)
+        nameCell.alignment = Alignment(horizontal="center", vertical="justify")
 
-    def reassignStyles(self,ws,styledCell):
-        ws[styledCell].font = Font(bold=True, name="Arial", size=12)
+    def reassignStyles(self,ws,styledCell,inBold):
+        ws[styledCell].font = Font(bold=inBold, name="Arial", size=8)
         ws[styledCell].alignment = Alignment(horizontal="center", vertical="center")
 
     def drawBottomBorder(self,ws,targetRow, maxCols):
-        borderLen = 8
+        borderLen = 13
         # Initialized borderlen and determine closer multiple to draw stripe along row
         while maxCols > borderLen:
             borderLen *= 2
@@ -81,13 +96,13 @@ class GetHeaderContent:
         self.__wsDate=None
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
-        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+)",re.IGNORECASE)
+        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+\s?[a-záíúéó]*)",re.IGNORECASE)
         self.__searchAndSetHeaderParams()        
     
     def __searchAndSetHeaderParams(self):
         dateRegex = self.__dateRE
         patientRegex =self.__patientRE
-        rutRegex= re.compile("(\d+\.\d{3}\.\d{3})(?=-\d+)")
+        rutRegex= re.compile("(\d+\.\d{3}\.\d{3})(?=-[\d\w]+)")
         try:
             for page in self.__currentReport:
                 if dateRegex.search(page) and patientRegex.search(page) and rutRegex.search(page):
@@ -112,7 +127,7 @@ class GetHeaderContent:
 
     def getHeaderFormat(self):
         return {"Título": self.__title,
-            "Nombre": self.__patientName.group(1),
+            "Nombre": self.__patientName.group(1).strip(),
             "RUT":self.__patientRUT.group(1),
             "Fecha": None,
             "Hora": None}
@@ -160,11 +175,11 @@ class InsertDataInWorkSheet(GetHeaderContent):
                     # logging.debug(str(currentCell.row)+' with value '+currentCell.value)
                     rowPos += 1
             col = ws.column_dimensions["A"]
-            col.width = 24
+            col.width = 15
             for cell in ws["A"]:
-                cell.font = Font(name="Arial", size=12, bold=True)
+                cell.font = Font(name="Arial", size=8, bold=True)
                 cell.alignment = Alignment(horizontal="center", vertical="center")
-            ws.print_title_rows = "1:2"
+            ws.print_title_rows = "1:3"
             ws.title = "RESULTADOS"
         elif ws['B3'].value != formatDataDic['RUT']:
             print("RUT from loaded worksheet doesn't match the one's PDF!")
@@ -197,7 +212,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=j, column=1).value != key:
                                 ws.insert_rows(j)
                                 ws.cell(row=j, column=1, value=key)
-                                sl.reassignStyles(ws,ws.cell(row=j,column=1).coordinate)
+                                sl.reassignStyles(ws,ws.cell(row=j,column=1).coordinate,True)
                         rowPos += 1
     # Add date value to a column
     def insertAndFormatDates(self):
@@ -206,12 +221,23 @@ class InsertDataInWorkSheet(GetHeaderContent):
         wsDate=self.getWsDate()
         wsTime=self.getWsTime()
         sl=StyleUtilities()
-        for col in ws.iter_cols(min_col=2, max_col=999999):
+        #Verify there are non-empty columns within format column's range
+        for cells in ws['B4':'M4']:
+            for cell in cells:
+                if not cell.value:
+                   break
+                elif cell.coordinate == 'M4':
+                    print('There are not more empty columns anymore!')
+                    ebt.WriteLog('Max Columns format reached!')
+        #iterate through columns and insert date's data
+        for col in ws.iter_cols(min_col=2, max_col=13):
             if self.__dateCoordinates:
                 break
             for cell in col:
                 dateCell = cell.coordinate[0] + str(len(formatDataDic) - 1)
                 timeCell = cell.coordinate[0] + str(len(formatDataDic))
+                sl.reassignStyles(ws,dateCell,False)
+                sl.reassignStyles(ws,timeCell,False)
                 if not ws[dateCell].value:
                     ws[dateCell].value = wsDate
                     ws[timeCell].value = wsTime
@@ -232,6 +258,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                         for cell in row:
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
+                    break
                 elif ws[dateCell].value == wsDate and ws[timeCell].value == wsTime:
                     self.__dateCoordinates = ws[dateCell].coordinate
                     sl.cleanBottomBorder(ws,2)
@@ -250,6 +277,10 @@ class InsertDataInWorkSheet(GetHeaderContent):
                         for cell in row:
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
+                    break
+                elif cell.coordinate[0] == 'M':
+                    ebt.WriteLog('Max Columns format reached!')
+                    break
                 elif ws[dateCell].value != wsDate or ws[timeCell].value != wsTime:
                     wsDateParams = wsDate.split("/")
                     colDateParams = ws[dateCell].value.split("/")
@@ -283,6 +314,8 @@ class InsertDataInWorkSheet(GetHeaderContent):
                         sl.setHeaderCells(
                             ws["A3"].coordinate, ws, formatDataDic["RUT"], "none"
                         )
+                        sl.reassignStyles(ws,self.__dateCoordinates,False)
+                        sl.reassignStyles(ws,newTimeCoordinate,False)
                     sl.cleanBottomBorder(ws,2)
                     nonEmpyCols = 0
                     for value in ws.iter_cols(
@@ -299,7 +332,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                         for cell in row:
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
-                break
+                    break
     # Add tests results to a column
     def insertTestResultData(self):
         currentGlossary=self.__glos
@@ -310,25 +343,37 @@ class InsertDataInWorkSheet(GetHeaderContent):
             for testname in currentGlossary[category]:
                 for row in ws.rows:
                     for cell in row:
-                        for label,keyword in testname.items(): 
+                        for label,keyword in testname.items():
                             if label == cell.value:
                                 for page in stream:
                                     reTestname = sl.strIntoUsefulRegex(keyword)
                                     testRegex = re.compile(
-                                        rf"{reTestname}[\s]*[:]?[\s]*([-*]?\d+\.?\d*)",
+                                        rf"{reTestname}[\s]*[:]?[\s]*([-*]?\d*\s*[-*]?\d+\.?\d*)",
                                         re.IGNORECASE,
                                     )
                                     if testRegex.search(page):
                                         testResult = testRegex.search(page)
+                                        intoNum = sl.strIntoNum(label,testResult.group(1))
                                         ws[
                                             self.__dateCoordinates[0] + str(cell.row)
-                                        ].value = testResult.group(1)
+                                        ].value = intoNum
+                                        sl.reassignStyles(ws,ws[self.__dateCoordinates[0] + str(cell.row)].coordinate,False)
                                         break
                                 break
     # Apply the thin borders on cells
-    def AddThinCellBorderStyle(self):
+    def addThinCellBorder(self):
         sl=StyleUtilities()
         ws=self.__ws
         for row in ws.rows:
             for cell in row:
                 sl.applythinBorders(cell)
+    #change results column dimensions
+    def setDataColumnDimensions(self):
+        ws=self.__ws
+        for row in ws.rows:
+            for cell in row:
+                ws.row_dimensions[cell.row].height=10
+        for col in ws.iter_cols(min_col=2):
+            for cell in col:
+                currentColumn=cell.coordinate[0]
+                ws.column_dimensions[currentColumn].width=6

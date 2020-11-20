@@ -1,5 +1,6 @@
-# Refactor of bloodTestsInserter-v2.py using classes
+﻿# Refactor of bloodTestsInserter-v2.py using classes
 import sys, PyPDF2, os, logging, re
+from pikepdf import Pdf
 from openpyxl import Workbook, load_workbook
 
 logging.basicConfig(
@@ -33,9 +34,21 @@ class GetDataStreamCollection:
             else:
                 raise Exception("Not a valid file ext")
         except Exception as err:
+            if str(err) == "Could not find xref table at specified location":
+                self.__retrieveDataFromCorruptedPDF()
+                return None
             print("An exception happened: " + str(err))
             WriteLog(str(err))
-
+    
+    def __retrieveDataFromCorruptedPDF(self):
+        tempName='temp.pdf'
+        with Pdf.open(self.__filename) as fixedPdf:
+            fixedPdf.save(tempName)
+            self.__filename= tempName
+            self.__appendFileToCollection()
+        path = os.path.join(os.getcwd(), tempName)
+        os.unlink(path)
+        
     def getCollection(self):
         self.__appendFileToCollection()
         return self.__txtStream
@@ -53,7 +66,7 @@ class GetGlossary:
             if intoList:
                 category = "undefined category"
                 categoryRegex = re.compile(r"[\wáíúéó\s]+(?=\*)", re.IGNORECASE)
-                labelAndKeyRegex = re.compile(r"([\w\d\.\s%áíúéó]+)\s*:\s*([\w\d\.\s%áíúéó]+)", re.IGNORECASE)
+                labelAndKeyRegex = re.compile(r"([\w\d\.\s%áíúéó]+)\s*:\s*([\w\d\.\s%áíúéó\(\)]+)", re.IGNORECASE)
                 for i in range(0, len(intoList)):
                     categ = categoryRegex.search(intoList[i])
                     if categ:

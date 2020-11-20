@@ -2,7 +2,9 @@
 import sys
 import electronbloodTestsInserterv2 as bt
 import HGFExcelInserter as hgf
-
+import os
+from pathlib import Path
+from pikepdf import _cpphelpers
 
 if len(sys.argv) >= 3:
     # Get arguments from command line.
@@ -14,7 +16,6 @@ if len(sys.argv) >= 3:
     glossary = open(glossaryPath, "r")
     dataStream = bt.GetDataStreamCollection(streamPath)
     gloss = bt.GetGlossary(glossary).getCollection()
-    #print(gloss)
     collection = dataStream.getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
     ws = wb.active
@@ -22,12 +23,18 @@ if len(sys.argv) >= 3:
     currentWS.insertAndFormatHeaderData()
     currentWS.insertAndFormatDates()
     currentWS.insertTestResultData()
-    currentWS.AddThinCellBorderStyle()
+    currentWS.addThinCellBorder()
+    currentWS.setDataColumnDimensions()
     header = currentWS.getHeaderFormat()
+    human=os.getcwd() + '\\blood tests data\\' + header['Nombre'] + header['RUT'] + ".xlsx"
     if not workSheetPath:
-        wb.save(header['Nombre'] + header['RUT'] + ".xlsx")
+        if not os.path.isdir(os.getcwd() + '\\blood tests data'):
+            Path("blood tests data").mkdir()
+        wb.save(os.getcwd() + '\\blood tests data\\' + header['Nombre'] + header['RUT'] + ".xlsx")
+        os.system(f'cmd /c "{human}"')
     else:
         wb.save(workSheetPath)
+        os.system(f'cmd /c "{workSheetPath}"')
     bt.WriteLog('Worksheet updated/created!')
 else:
     print(

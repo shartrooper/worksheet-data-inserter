@@ -16,18 +16,19 @@ ELECTROLITOS PLASMÁTICOS*
 Cloro: cloro
 Potasio: potasio
 Sodio: sodio
-Ca Iónico: calcio Iónico
+Ca Iónico: calcio Ionico
 PERFIL BIOQUÍMICO*
-Ferritina: ferritinina
+Ferritina: ferritina
 Ácido Urico: acido urico
 Calcio total: calcio
 LDH: lactato deshidrogenasa
 Fostoro: fosforo
+Glucosa: glucosa
 BUN:Nitrogeno ureico
 Urea: urea
 Albumina: albumina
 Proteinas Totales: proteinas totales
-PCR: Proteinas c reactiva
+PCR: Proteina c reactiva
 Creatinina: Creatinina 
 PRUEBAS HEPÁTICAS*
 Bil Total: bilirrubina total
@@ -36,11 +37,16 @@ FA: fosfatasa alcalina
 GGT: ggt
 GOT: got
 GPT: gpt
+PERFIL LIPÍDICO*
+Col total: colesterol total
+LDL: colesterol ldl
+HDL: colesterol hdl
+Trigliceridos: Trigliceridos
 CINÉTICA DEL FIERRO*
 Fierro: fierro
 U.I.B.C: u.i.b.c
-T.I.B.C: t.i.b.c
-% Sat Transferrina: %  saturación de transferrina
+T.I.B.C: t.i.b.c.
+% Sat Transferrina: % saturacion de transferrina
 transferrina: transferrina
 VOLUMEN FILTRADO GLOMERULAR*
 TP: porcentaje tp
