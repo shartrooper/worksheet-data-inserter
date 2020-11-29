@@ -1,10 +1,6 @@
 Hematología*
 Hb: Hemoglobina
 Hct: Hematocrito 
-VCM: V.C.M. (Volumen Medio)
-HCM: H.C.M. (Hemoglobina Media)
-CHCM: C.H C M (Concentracion Media)
-A.D.E.: A.D.E.
 Leucocitos: Recuento Leucocitos
 RAN totales: Neutrofilos totales
 RAL totales: Linfocitos totales
@@ -13,23 +9,27 @@ EOS totales: Eosinofilos totales
 Plaquetas: Plaquetas (recuento)
 VHS: vhs 
 ELECTROLITOS PLASMÁTICOS*
-Cloro: cloro
-Potasio: potasio
 Sodio: sodio
+Potasio: potasio
+Cloro: cloro
 Ca Iónico: calcio Ionico
+Calcio (corregido): calcio
+Magnesio:MAGNESIO EN SANGRE
+Fostoro: fosforo
 PERFIL BIOQUÍMICO*
 Ferritina: ferritina
 Ácido Urico: acido urico
-Calcio total: calcio
+Amonio: AMONIO PLASMATICO
+lactato: LACTATO EN SANGRE
 LDH: lactato deshidrogenasa
-Fostoro: fosforo
 Glucosa: glucosa
 BUN:Nitrogeno ureico
 Urea: urea
 Albumina: albumina
-Proteinas Totales: proteinas totales
 PCR: Proteina c reactiva
-Creatinina: Creatinina 
+Creatinina: Creatinina
+vitamina B12: niveles vitamina b12
+vitamina D: vitamina D 
 PRUEBAS HEPÁTICAS*
 Bil Total: bilirrubina total
 Bil Directa: bilirrubina directa
@@ -37,6 +37,12 @@ FA: fosfatasa alcalina
 GGT: ggt
 GOT: got
 GPT: gpt
+BIOQUÍMICO PATOLOGÍAS*
+Lipasa:lipasa en sangre
+HORMONAS Y HEMOGLOBINA*
+PTH:HORMONA PARATIROIDEA
+TSH:HORMONA TIROESTIMULANTE (TSH)
+Hba1c:HEMOGLOBINA GLICADA HbA1c
 PERFIL LIPÍDICO*
 Col total: colesterol total
 LDL: colesterol ldl
@@ -52,6 +58,7 @@ VOLUMEN FILTRADO GLOMERULAR*
 TP: porcentaje tp
 INR: inr
 TTPA: ttpa
+Dimero D: Dimero D
 GASES EN SANGRE*
 pH: ph
 PCO2: p co2
@@ -59,3 +66,9 @@ PO2: p o2
 HCO3: hco3
 Ex. Base: ex. Base
 SatPO2: saturacion de o2
+QUIMICAS DE ORINAS DE RECOLECCIÓN*
+Proteina Orina 24h: PROTEINURIA x DIURESIS
+PERFIL CARDIACO*
+CK MB: CREATINKINASA MB (CK MB)
+CK TOTAL: CREATINKINASA TOTAL (CK TOTAL)
+Troponina: TROPONINA ULTRASENSIBLE

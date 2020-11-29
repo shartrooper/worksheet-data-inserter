@@ -25,6 +25,8 @@ if len(sys.argv) >= 3:
     currentWS.insertTestResultData()
     currentWS.addThinCellBorder()
     currentWS.setDataColumnDimensions()
+    currentWS.removeColSurplus()
+    hgf.AdjustCalciumValue(ws,currentWS.getCurrentDateCoordinates())
     header = currentWS.getHeaderFormat()
     human=os.getcwd() + '\\blood tests data\\' + header['Nombre'] + header['RUT'] + ".xlsx"
     if not workSheetPath:

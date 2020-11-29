@@ -23,11 +23,14 @@ class StyleUtilities:
         num=re.sub('\s','',num)
         num=re.sub('\*','',num)
         num=float(num)
-        #round into two decimals max, apply pH exception.
+        #round into two decimals max, apply pH and Troponina exception.
         if num.is_integer():
             return int(num)
         elif label == 'pH':
             return float(num)
+        elif label == 'Troponina':
+            if num < 0.047:
+                return '<0.047'
         return round(num,2)
     
     def getTotalLength(self,glossary):
@@ -96,13 +99,14 @@ class GetHeaderContent:
         self.__wsDate=None
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
-        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-záíúéó]+\s+[a-záíúéó]+\s+[a-záíúéó]+\s?[a-záíúéó]*)",re.IGNORECASE)
+        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó]+ +[a-zñáíúéó]+ +[a-zñáíúéó]+ ?[a-zñáíúéó]* ?[a-zñáíúéó]*)",re.IGNORECASE)
         self.__searchAndSetHeaderParams()        
     
     def __searchAndSetHeaderParams(self):
         dateRegex = self.__dateRE
         patientRegex =self.__patientRE
-        rutRegex= re.compile("(\d+\.\d{3}\.\d{3})(?=-[\d\w]+)")
+        #rutRegex= re.compile("(\d+\.\d{3}\.\d{3})(?=-[\d\w]+)")
+        rutRegex= re.compile("(\d+\.\d{3}\.\d{3}-[\d\w])")
         try:
             for page in self.__currentReport:
                 if dateRegex.search(page) and patientRegex.search(page) and rutRegex.search(page):
@@ -146,6 +150,9 @@ class InsertDataInWorkSheet(GetHeaderContent):
         self.__glos=glossary
         self.__dateCoordinates=""
     
+    # Get current Date's cell coordinates
+    def getCurrentDateCoordinates(self):
+        return self.__dateCoordinates
     # Format list for headers and date/time
     def insertAndFormatHeaderData(self):
         formatDataDic=self.getHeaderFormat()
@@ -377,3 +384,43 @@ class InsertDataInWorkSheet(GetHeaderContent):
             for cell in col:
                 currentColumn=cell.coordinate[0]
                 ws.column_dimensions[currentColumn].width=6
+    #Delete all columns out of format's range
+    def removeColSurplus(self):
+        self.__ws.delete_cols(14,30)
+
+class AdjustCalciumValue:
+    
+    def __init__(self,currentWorksheet,coordinates):
+        self.__ws=currentWorksheet
+        self.__dateCoordinates=coordinates
+        self.__albuminaValue=0
+        self.__calciumValue=0
+        self.__albuminaCoordinates=''
+        self.__calciumCoordinates=''
+        self.__getValues()
+        self.__setAdjustedValue()
+        
+    def __correctCalciumValue(self):
+        return self.__calciumValue+(4-self.__albuminaValue)*0.8
+    
+    def __getValues(self):
+        ws=self.__ws
+        dateCoord=self.__dateCoordinates
+        #if 'Albumina' in ws.iter_rows(min_row=1, min_col=1, max_col=1, values_only= True): and 'Calcio (corregido)' in ws.iter_rows(min_row=1, min_col=1, max_col=1, values_only= True):
+        for row in ws.iter_rows(min_row=1, min_col=1, max_col=1):
+            for cell in row:
+                if cell.value == 'Albumina':
+                    for col in ws.iter_cols(min_row=cell.row,max_row=cell.row,min_col=2,max_col=ws[dateCoord].column):
+                        for cell in col:
+                            if cell.value:
+                                self.__albuminaCoordinates=cell.coordinate
+                                self.__albuminaValue=cell.value
+                elif cell.value == 'Calcio (corregido)':
+                    calciumCell=ws.cell(row=cell.row,column=ws[dateCoord].column)
+                    self.__calciumCoordinates=calciumCell.coordinate
+                    self.__calciumValue=calciumCell.value
+    
+    def __setAdjustedValue(self):
+        if self.__calciumValue and self.__albuminaValue:
+            self.__ws[self.__calciumCoordinates].value=self.__correctCalciumValue()
+    

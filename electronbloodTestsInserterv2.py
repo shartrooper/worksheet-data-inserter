@@ -66,7 +66,7 @@ class GetGlossary:
             if intoList:
                 category = "undefined category"
                 categoryRegex = re.compile(r"[\wáíúéó\s]+(?=\*)", re.IGNORECASE)
-                labelAndKeyRegex = re.compile(r"([\w\d\.\s%áíúéó]+)\s*:\s*([\w\d\.\s%áíúéó\(\)]+)", re.IGNORECASE)
+                labelAndKeyRegex = re.compile(r"([\w\d\.\s%ñáíúéó\(\)]+)\s*:\s*([\w\d\.\s%ñáíúéó\(\)]+)", re.IGNORECASE)
                 for i in range(0, len(intoList)):
                     categ = categoryRegex.search(intoList[i])
                     if categ:
