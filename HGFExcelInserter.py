@@ -47,7 +47,7 @@ class StyleUtilities:
             start_row=ws[coordinate].row,
             start_column=ws[coordinate].column + 1,
             end_row=ws[coordinate].row,
-            end_column=13,
+            end_column=12,
         )
         nameCell.font = Font(underline=line, name="Arial", size=8)
         nameCell.alignment = Alignment(horizontal="center", vertical="justify")
@@ -57,7 +57,7 @@ class StyleUtilities:
         ws[styledCell].alignment = Alignment(horizontal="center", vertical="center")
 
     def drawBottomBorder(self,ws,targetRow, maxCols):
-        borderLen = 13
+        borderLen = 12
         # Initialized borderlen and determine closer multiple to draw stripe along row
         while maxCols > borderLen:
             borderLen *= 2
@@ -237,7 +237,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                     print('There are not more empty columns anymore!')
                     ebt.WriteLog('Max Columns format reached!')
         #iterate through columns and insert date's data
-        for col in ws.iter_cols(min_col=2, max_col=13):
+        for col in ws.iter_cols(min_col=2, max_col=12):
             if self.__dateCoordinates:
                 break
             for cell in col:
@@ -285,7 +285,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
                     break
-                elif cell.coordinate[0] == 'M':
+                elif cell.coordinate[0] == 'L':
                     ebt.WriteLog('Max Columns format reached!')
                     break
                 elif ws[dateCell].value != wsDate or ws[timeCell].value != wsTime:
@@ -386,7 +386,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                 ws.column_dimensions[currentColumn].width=6
     #Delete all columns out of format's range
     def removeColSurplus(self):
-        self.__ws.delete_cols(14,30)
+        self.__ws.delete_cols(13,30)
 
 class AdjustCalciumValue:
     
