@@ -1,12 +1,22 @@
 ﻿#! python3
-import sys
+import sys, logging
 import electronbloodTestsInserterv2 as bt
 import HGFExcelInserter as hgf
 import os
 from pathlib import Path
 from pikepdf import _cpphelpers
+from getmac import getmac
 
-if len(sys.argv) >= 3:
+clients = ['EC:B1:D7:4F:1E:99', '6C:62:6D:91:1E:D2', '00:25:AB:AC:F9:E7', '40:A8:F0:A8:AF:81', '64:51:06:2D:BE:BC',
+           '64:51:06:33:D3:C4', '00:25:AB:A4:19:73', '40:61:86:86:E3:EA', '40:61:86:7E:67:58', '64:51:06:3F:4B:FC',
+           '64:51:06:31:ED:AA', '30:9C:23:0B:48:C4', 'F4:B5:20:1C:1B:C6']
+
+getMac = logging.getLogger('getmac')
+getMac.setLevel(logging.INFO)
+
+# getmac.DEBUG = 0
+client = getmac.get_mac_address()
+if (len(sys.argv) >= 3) & (client.upper() in clients):
     # Get arguments from command line.
     streamPath = sys.argv[1]
     glossaryPath = sys.argv[2]
