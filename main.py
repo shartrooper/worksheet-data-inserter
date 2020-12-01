@@ -1,4 +1,4 @@
-﻿#! python3
+#! python3
 import sys, logging
 import electronbloodTestsInserterv2 as bt
 import HGFExcelInserter as hgf
@@ -37,6 +37,7 @@ if (len(sys.argv) >= 3) & (client.upper() in clients):
     currentWS.setDataColumnDimensions()
     currentWS.removeColSurplus()
     hgf.AdjustCalciumValue(ws,currentWS.getCurrentDateCoordinates())
+    hgf.CreateRecycleWorkSheet(wb,ws,4)
     header = currentWS.getHeaderFormat()
     human=os.getcwd() + '\\blood tests data\\' + header['Nombre'] + header['RUT'] + ".xlsx"
     if not workSheetPath:

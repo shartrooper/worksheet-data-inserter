@@ -423,4 +423,42 @@ class AdjustCalciumValue:
     def __setAdjustedValue(self):
         if self.__calciumValue and self.__albuminaValue:
             self.__ws[self.__calciumCoordinates].value=self.__correctCalciumValue()
+
+class CreateRecycleWorkSheet:
     
+    def __init__(self,workBook,currentWorksheet,startingRow):
+        self.__ws=currentWorksheet
+        if "RECICLAJE" in workBook.sheetnames:
+            workBook.remove_sheet(workBook["RECICLAJE"])
+        self.__wsr=workBook.copy_worksheet(currentWorksheet)
+        self.__wsr.title="RECICLAJE"
+        self.__startRow=startingRow
+        self.__cleanColumnsAndRows()
+        self.__insertColumnInRecycleWs()
+
+    def __cleanColumnsAndRows(self):
+        wsr=self.__wsr
+        nullBorder= Border(left=Side(border_style=None,color='FF000000'),
+        right=Side(border_style=None,color='FF000000'),
+        top=Side(border_style=None,color='FF000000'),
+        bottom=Side(border_style=None, color='FF000000'))
+        for col in wsr.columns:
+            for cell in col:
+                cell.value=''
+                cell.border=nullBorder
+        
+    def __insertColumnInRecycleWs(self):
+        ws=self.__ws
+        wsr=self.__wsr
+        sl=StyleUtilities()
+        # Iterate through result columns and search for last
+        for i,col in enumerate(ws.iter_cols(min_col=2,min_row=self.__startRow),2):
+            for j,cell in enumerate(col,self.__startRow):
+                # get cell from next col to compare values with
+                nextCell=ws.cell(row=self.__startRow,column=i+1)
+                if not nextCell.value:
+                    wsrCell=wsr.cell(row=j,column=i)
+                    wsrCell.value=cell.value
+                    sl.reassignStyles(wsr,wsrCell.coordinate,False)
+                    continue
+                break
