@@ -459,6 +459,8 @@ class CreateRecycleWorkSheet:
                 if not nextCell.value:
                     wsrCell=wsr.cell(row=j,column=i)
                     wsrCell.value=cell.value
-                    sl.reassignStyles(wsr,wsrCell.coordinate,False)
+                    wsrCell.font = Font(bold=False, name="Arial", size=8)
+                    wsrCell.alignment = Alignment(horizontal="center", vertical="top")
+                    #sl.reassignStyles(wsr,wsrCell.coordinate,False)
                     continue
                 break
