@@ -29,7 +29,7 @@ if (len(sys.argv) >= 3) & (client.upper() in clients):
     collection = dataStream.getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
     ws = wb.active
-    currentWS = hgf.InsertDataInWorkSheet(ws, collection, "Resumen exámenes de laboratorio UPC HGF", gloss)
+    currentWS = hgf.InsertDataInWorkSheet(ws, collection, "Resumen exámenes de laboratorio UPC de Centros de Salud", gloss)
     currentWS.insertAndFormatHeaderData()
     currentWS.insertAndFormatDates()
     currentWS.insertTestResultData()
