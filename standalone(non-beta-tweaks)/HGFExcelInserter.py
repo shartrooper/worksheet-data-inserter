@@ -1,6 +1,6 @@
 ﻿import datetime,logging,re
 from openpyxl.styles import Font, Alignment, Border, Side
-import electronbloodTestsInserterv2 as ebt
+import getDatafromFiles as ebt
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s -  %(levelname)s -  %(message)s"
@@ -100,8 +100,9 @@ class GetHeaderContent:
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
         self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó]+ +[a-zñáíúéó]+ ?[a-zñáíúéó]* ?[a-zñáíúéó]* ?[a-zñáíúéó]*)",re.IGNORECASE)
-        self.__searchAndSetHeaderParams()        
-    
+        self.isError= False
+        self.__searchAndSetHeaderParams()
+
     def __searchAndSetHeaderParams(self):
         dateRegex = self.__dateRE
         patientRegex =self.__patientRE
@@ -119,9 +120,11 @@ class GetHeaderContent:
                     raise Exception("Date or Patient's credentials not found")
             self.__wsDate = datetime.date(int(self.__reportDate.group(4)), int(self.__reportDate.group(3)), int(self.__reportDate.group(2))).strftime("%d/%m/%y")
             self.__wsTime = self.__reportDate.group(5)
+            return None
         except Exception as err:
             print("An exception happened: "+str(err))
             ebt.WriteLog(str(err))
+            self.isError= True
 
     def getWsDate(self):
         return self.__wsDate
@@ -141,6 +144,9 @@ class GetHeaderContent:
         
     def getRowPosition(self):
         return len(self.getHeaderFormat())+1
+        
+    def getErrorFlag(self):
+        return self.isError
 
 class InsertDataInWorkSheet(GetHeaderContent):
 
@@ -149,7 +155,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
         self.__ws=currentWorksheet
         self.__glos=glossary
         self.__dateCoordinates=""
-    
+        self._isCapped=False
     # Get current Date's cell coordinates
     def getCurrentDateCoordinates(self):
         return self.__dateCoordinates
@@ -191,6 +197,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
         elif ws['B3'].value != formatDataDic['RUT']:
             print("RUT from loaded worksheet doesn't match the one's PDF!")
             ebt.WriteLog("Patient's RUT mismatch")
+            self.isError= True
         else:
             #Insert new testname and/or category bottom stripe as a WorkSheet row
             dictLen = sl.getTotalLength(currentGlossary) + len(formatDataDic)
@@ -236,6 +243,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                 elif cell.coordinate == 'M4':
                     print('There are not more empty columns anymore!')
                     ebt.WriteLog('Max Columns format reached!')
+                    self._isCapped=True
         #iterate through columns and insert date's data
         for col in ws.iter_cols(min_col=2, max_col=12):
             if self.__dateCoordinates:
@@ -387,6 +395,8 @@ class InsertDataInWorkSheet(GetHeaderContent):
     #Delete all columns out of format's range
     def removeColSurplus(self):
         self.__ws.delete_cols(13,30)
+    def isColCapReached(self):
+        return self._isCapped
 
 class AdjustCalciumValue:
     
