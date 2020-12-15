@@ -39,6 +39,7 @@ class GetDataStreamCollection:
                 return None
             print("An exception happened: " + str(err))
             WriteLog(str(err))
+            return 'error'
     
     def __retrieveDataFromCorruptedPDF(self):
         tempName='temp.pdf'
@@ -50,7 +51,8 @@ class GetDataStreamCollection:
         os.unlink(path)
         
     def getCollection(self):
-        self.__appendFileToCollection()
+        if self.__appendFileToCollection() == 'error':
+            return None
         return self.__txtStream
 
 
@@ -84,6 +86,7 @@ class GetGlossary:
         except Exception as err:
             print("An exception happened: " + str(err))
             WriteLog(str(err))
+            sys.exit(1)
 
     def getCollection(self):
         self.__appendStringToCollection()
@@ -140,10 +143,10 @@ class WriteLog:
                 log.write(logContent)
                 log.seek(0, 2)
                 log.write('\n' + self.__writeStatus())
-            sys.exit(1)
+            #sys.exit(1)
         else:
             with open("user_log.txt", "w") as log:
                 self.__userCounter += 1
                 log.write(self.__logHeader())
                 log.write(self.__writeStatus())
-            sys.exit(1)
+            #sys.exit(1)
