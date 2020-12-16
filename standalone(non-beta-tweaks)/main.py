@@ -27,7 +27,6 @@ if len(sys.argv) >= 4:
     _,glossaryPath,workSheetPath,*streamPathCollection=sys.argv
     if workSheetPath == 'none':
         workSheetPath = ''
-    # TODO: don't overwrite files.
     glossary = open(glossaryPath, "r")
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
