@@ -122,7 +122,7 @@ class GetHeaderContent:
             self.__wsTime = self.__reportDate.group(5)
             return None
         except Exception as err:
-            print("An exception happened: "+str(err))
+            #print("An exception happened: "+str(err))
             ebt.WriteLog(str(err))
             self.isError= True
 
@@ -195,7 +195,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
             ws.print_title_rows = "1:3"
             ws.title = "RESULTADOS"
         elif ws['B3'].value != formatDataDic['RUT']:
-            print("RUT from loaded worksheet doesn't match the one's PDF!")
+            #print("RUT from loaded worksheet doesn't match the one's PDF!")
             ebt.WriteLog("Patient's RUT mismatch")
             self.isError= True
         else:
