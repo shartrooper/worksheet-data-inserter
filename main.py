@@ -1,4 +1,5 @@
 ﻿#! python3
+import logging
 import sys
 import getDatafromFiles as bt
 import HGFExcelInserter as hgf
@@ -33,12 +34,11 @@ def newOrUpdatedWs():
     hgf.AdjustCalciumValue(ws,currentWS.getCurrentDateCoordinates())
     hgf.CreateRecycleWorkSheet(wb,ws,4)
 
-if (len(sys.argv) >= 4 & (client.upper() in clients):
+if (len(sys.argv) >= 4) and (client.upper() in clients):
     # Get arguments from command line.
     _,glossaryPath,workSheetPath,*streamPathCollection=sys.argv
     if workSheetPath == 'none':
         workSheetPath = ''
-    # TODO: don't overwrite files.
     glossary = open(glossaryPath, "r")
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()

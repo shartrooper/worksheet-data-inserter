@@ -507,3 +507,24 @@ dist/main/tk/msgbox.tcl
 dist/main/tk/obsolete.tcl
 dist/main/tk/optMenu.tcl
 dist.rar
+codigo_fuente.rar
+libre_out.rar
+worksheet-data-inserter.rar
+.idea/.gitignore
+.idea/misc.xml
+.idea/modules.xml
+.idea/rSettings.xml
+.idea/vcs.xml
+.idea/worksheet-data-inserter.iml
+.idea/inspectionProfiles/profiles_settings.xml
+libre/main.exe
+licensias/COPYING-pyinstaller.txt
+licensias/electron.txt
+licensias/getmac.txt
+licensias/jquery-lincense.txt
+licensias/openpyxl.txt
+licensias/pikepdf- mozilla lincense 2.0.txt
+licensias/pypdf2 -bsd lincense.txt
+out/config.json
+out/glossary.txt
+out/main.exe
