@@ -34,11 +34,13 @@ def newOrUpdatedWs():
     hgf.AdjustCalciumValue(ws,currentWS.getCurrentDateCoordinates())
     hgf.CreateRecycleWorkSheet(wb,ws,4)
 
-if (len(sys.argv) >= 4) and (client.upper() in clients):
+if (len(sys.argv) >= 5) and (client.upper() in clients):
     # Get arguments from command line.
-    _,glossaryPath,workSheetPath,*streamPathCollection=sys.argv
+    _,glossaryPath,workSheetPath,savePath,*streamPathCollection=sys.argv
     if workSheetPath == 'none':
         workSheetPath = ''
+    if savePath == 'none':
+        savePath = '\\blood tests data\\'
     glossary = open(glossaryPath, "r")
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
@@ -57,17 +59,17 @@ if (len(sys.argv) >= 4) and (client.upper() in clients):
         if catchError == 'capped!':
             break
     header=currentWS.getHeaderFormat()
-    human=os.getcwd() + '\\blood tests data\\' + header['Nombre'] + header['RUT'] + ".xlsx"
+    human=os.getcwd() + savePath+ header['Nombre'] + header['RUT'] + ".xlsx"
     if not workSheetPath:
-        if not os.path.isdir(os.getcwd() + '\\blood tests data'):
+        if not os.path.isdir(os.getcwd() + savePath):
             Path("blood tests data").mkdir()
         toSaveFilename=header['Nombre'] + header['RUT'] + ".xlsx"
-        for root, dirs, files in os.walk(os.getcwd()+'\\blood tests data'):
+        for root, dirs, files in os.walk(os.getcwd()+savePath):
             for i in range(1,len(files)+1):
                 for filename in files:
                     if toSaveFilename == filename:
                         toSaveFilename= header['Nombre'] + header['RUT'] +"("+str(i)+")"+".xlsx"
-        saveFile=os.getcwd() + '\\blood tests data\\' + toSaveFilename
+        saveFile=os.getcwd() + savePath+ toSaveFilename
         wb.save(saveFile)
         os.system(f'cmd /c "{saveFile}"')
     else:

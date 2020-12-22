@@ -99,7 +99,7 @@ class GetHeaderContent:
         self.__wsDate=None
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
-        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó]+ +[a-zñáíúéó]+ ?[a-zñáíúéó]* ?[a-zñáíúéó]* ?[a-zñáíúéó]*)",re.IGNORECASE)
+        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó\.]+ +[a-zñáíúéó\.]+ ?[a-zñáíúéó\.]* ?[a-zñáíúéó\.]* ?[a-zñáíúéó\.]*)",re.IGNORECASE)
         self.isError= False
         self.__searchAndSetHeaderParams()
 
@@ -122,7 +122,7 @@ class GetHeaderContent:
             self.__wsTime = self.__reportDate.group(5)
             return None
         except Exception as err:
-            #print("An exception happened: "+str(err))
+            print("An exception happened: "+str(err))
             ebt.WriteLog(str(err))
             self.isError= True
 
@@ -195,7 +195,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
             ws.print_title_rows = "1:3"
             ws.title = "RESULTADOS"
         elif ws['B3'].value != formatDataDic['RUT']:
-            #print("RUT from loaded worksheet doesn't match the one's PDF!")
+            print("RUT from loaded worksheet doesn't match the one's PDF!")
             ebt.WriteLog("Patient's RUT mismatch")
             self.isError= True
         else:
