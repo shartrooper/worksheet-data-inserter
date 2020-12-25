@@ -36,11 +36,14 @@ def newOrUpdatedWs():
 
 if (len(sys.argv) >= 5) and (client.upper() in clients):
     # Get arguments from command line.
-    _,glossaryPath,workSheetPath,savePath,*streamPathCollection=sys.argv
+    _,glossaryPath,workSheetPath,*streamPathCollection,savePath=sys.argv
     if workSheetPath == 'none':
         workSheetPath = ''
-    if savePath == 'none':
-        savePath = '\\blood tests data\\'
+    if savePath == 'none' or not os.path.isdir(savePath):
+        defaultPath = "\\blood tests data\\"
+        if not os.path.isdir(os.getcwd() + defaultPath):
+            Path("blood tests data").mkdir()
+        savePath=os.getcwd() + defaultPath
     glossary = open(glossaryPath, "r")
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
@@ -59,17 +62,14 @@ if (len(sys.argv) >= 5) and (client.upper() in clients):
         if catchError == 'capped!':
             break
     header=currentWS.getHeaderFormat()
-    human=os.getcwd() + savePath+ header['Nombre'] + header['RUT'] + ".xlsx"
     if not workSheetPath:
-        if not os.path.isdir(os.getcwd() + savePath):
-            Path("blood tests data").mkdir()
         toSaveFilename=header['Nombre'] + header['RUT'] + ".xlsx"
-        for root, dirs, files in os.walk(os.getcwd()+savePath):
+        for root, dirs, files in os.walk(savePath):
             for i in range(1,len(files)+1):
                 for filename in files:
                     if toSaveFilename == filename:
                         toSaveFilename= header['Nombre'] + header['RUT'] +"("+str(i)+")"+".xlsx"
-        saveFile=os.getcwd() + savePath+ toSaveFilename
+        saveFile=savePath+toSaveFilename
         wb.save(saveFile)
         os.system(f'cmd /c "{saveFile}"')
     else:

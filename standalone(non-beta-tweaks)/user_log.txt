@@ -1,0 +1,44 @@
+===REPORTE DE ACCESO A LA APLICACIÓN===
+ Total de Accesos: 41
+
+Status acceso 1 : Worksheet updated/created!
+Status acceso 2 : Worksheet updated/created!
+Status acceso 3 : Worksheet updated/created!
+Status acceso 4 : Worksheet updated/created!
+Status acceso 5 : Worksheet updated/created!
+Status acceso 6 : Worksheet updated/created!
+Status acceso 7 : Worksheet updated/created!
+Status acceso 8 : Worksheet updated/created!
+Status acceso 9 : Not a valid file ext
+Status acceso 10 : Not a valid file ext
+Status acceso 11 : Worksheet updated/created!
+Status acceso 12 : Worksheet updated/created!
+Status acceso 13 : Worksheet updated/created!
+Status acceso 14 : Worksheet updated/created!
+Status acceso 15 : Worksheet updated/created!
+Status acceso 16 : Not a valid file ext
+Status acceso 17 : Not a valid file ext
+Status acceso 18 : Worksheet updated/created!
+Status acceso 19 : Not a valid file ext
+Status acceso 20 : [Errno 2] No such file or directory: "1.pdf'"
+Status acceso 21 : Worksheet updated/created!
+Status acceso 22 : Not a valid file ext
+Status acceso 23 : Worksheet updated/created!
+Status acceso 24 : Not a valid file ext
+Status acceso 25 : Not a valid file ext
+Status acceso 26 : Worksheet updated/created!
+Status acceso 27 : Not a valid file ext
+Status acceso 28 : Not a valid file ext
+Status acceso 29 : Worksheet updated/created!
+Status acceso 30 : Not a valid file ext
+Status acceso 31 : Not a valid file ext
+Status acceso 32 : Worksheet updated/created!
+Status acceso 33 : Not a valid file ext
+Status acceso 34 : Not a valid file ext
+Status acceso 35 : Worksheet updated/created!
+Status acceso 36 : Worksheet updated/created!
+Status acceso 37 : Worksheet updated/created!
+Status acceso 38 : Worksheet updated/created!
+Status acceso 39 : Not a valid file ext
+Status acceso 40 : Not a valid file ext
+Status acceso 41 : Worksheet updated/created!
