@@ -77,7 +77,9 @@ if (len(sys.argv) >= 5) and (client.upper() in clients):
         os.system(f'cmd /c "{workSheetPath}"')
     bt.WriteLog('Worksheet updated/created!')
 else:
+    if not client.upper() in clients:
+        print("UNAUTHORIZED USER!")
+        sys.exit(1)
     print(
         "Please, introduce at least existing filenames for test reports and dictionary in command lines"
     )
-    sys.exit(1)
