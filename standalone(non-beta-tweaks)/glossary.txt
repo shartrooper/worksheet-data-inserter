@@ -22,6 +22,7 @@ Ferritina: ferritina
 Amonio: AMONIO PLASMATICO
 lactato: LACTATO EN SANGRE
 LDH: lactato deshidrogenasa
+Cetonemia: CETONEMIA CUANTITATIVA
 Glucosa: glucosa
 BUN:Nitrogeno ureico
 Urea: urea
