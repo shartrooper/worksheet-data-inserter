@@ -4,7 +4,6 @@ import sys
 import getDatafromFiles as bt
 import HGFExcelInserter as hgf
 import os
-from pathlib import Path
 from pikepdf import _cpphelpers
 from getmac import getmac
 
@@ -37,13 +36,14 @@ def newOrUpdatedWs():
 if (len(sys.argv) >= 5) and (client.upper() in clients):
     # Get arguments from command line.
     _,glossaryPath,workSheetPath,*streamPathCollection,savePath=sys.argv
-    if workSheetPath == 'none':
-        workSheetPath = ''
-    if savePath == 'none' or not os.path.isdir(savePath):
-        defaultPath = "\\blood tests data\\"
-        if not os.path.isdir(os.getcwd() + defaultPath):
-            Path("blood tests data").mkdir()
-        savePath=os.getcwd() + defaultPath
+    dataStream = bt.GetDataStreamCollection(streamPathCollection[0])
+    collection = dataStream.getCollection()
+    if not collection:
+        raise Exception("An exception happened, check log file for details.")
+    saveFileRoutes=hgf.SaveFileRouteExplorer(savePath,workSheetPath,collection)
+    workSheetPath =saveFileRoutes.getWSPath()
+    saveFileName = saveFileRoutes.getSaveFileName()
+    savePath = saveFileRoutes.getSaveRoute()
     glossary = open(glossaryPath, "r")
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
@@ -63,13 +63,7 @@ if (len(sys.argv) >= 5) and (client.upper() in clients):
             break
     header=currentWS.getHeaderFormat()
     if not workSheetPath:
-        toSaveFilename=header['Nombre'] + header['RUT'] + ".xlsx"
-        for root, dirs, files in os.walk(savePath):
-            for i in range(1,len(files)+1):
-                for filename in files:
-                    if toSaveFilename == filename:
-                        toSaveFilename= header['Nombre'] + header['RUT'] +"("+str(i)+")"+".xlsx"
-        saveFile=savePath+toSaveFilename
+        saveFile=savePath+saveFileName
         wb.save(saveFile)
         os.system(f'cmd /c "{saveFile}"')
     else:

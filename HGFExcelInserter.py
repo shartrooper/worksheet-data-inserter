@@ -1,5 +1,7 @@
-﻿import datetime,logging,re
+﻿import os
+import datetime,logging,re
 from openpyxl.styles import Font, Alignment, Border, Side
+from pathlib import Path
 import getDatafromFiles as ebt
 
 logging.basicConfig(
@@ -99,7 +101,7 @@ class GetHeaderContent:
         self.__wsDate=None
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
-        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó\.]+ +[a-zñáíúéó\.]+ ?[a-zñáíúéó\.]* ?[a-zñáíúéó\.]* ?[a-zñáíúéó\.]*)",re.IGNORECASE)
+        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó\.,]+ +[a-zñáíúéó\.,]+ ?[a-zñáíúéó\.,]* ?[a-zñáíúéó\.,]* ?[a-zñáíúéó\.,]*)",re.IGNORECASE)
         self.isError= False
         self.__searchAndSetHeaderParams()
 
@@ -474,3 +476,51 @@ class CreateRecycleWorkSheet:
                     #sl.reassignStyles(wsr,wsrCell.coordinate,False)
                     continue
                 break
+
+class SaveFileRouteExplorer(GetHeaderContent):
+    
+    def __init__(self,savePath,wsPath,report,title='Placeholder'):
+        super().__init__(report,title)
+        self.__fileRUT=self.getHeaderFormat()['RUT']
+        self.__saveFileName= self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] + ".xlsx"
+        #Specified file saving route
+        self.__savePath= savePath
+        #Loaded .xlsx file route
+        self.__workSheetPath=wsPath
+        if wsPath == 'none':
+           self.__workSheetPath=''
+           self.__checkFilesWithSameRUT()
+
+    def getWSPath(self):
+        return self.__workSheetPath
+    
+    def getSaveFileName(self):
+        return self.__saveFileName
+    
+    def getSaveRoute(self):
+        return self.__savePath
+    
+    def __checkFilesWithSameRUT(self):
+        self.__setSaveFileRoute()
+        fileRUTRegex=re.compile(rf'{self.__fileRUT}')
+        for root, dirs, files in os.walk(self.__savePath):
+            for i in range(1,len(files)):
+                for filename in files:
+                    foundSameFileName=fileRUTRegex.search(filename)
+                    print(filename)
+                    if foundSameFileName:
+                        while(True):
+                            userInput = input("Se detectó archivo con mismo RUT del reporte cargado ¿Desea cargar y actualizar el archivo? s/n ")
+                            if userInput.lower() in ['s','sí','si','yes','y']:
+                                self.__workSheetPath=self.__savePath+filename
+                                break
+                            elif userInput.lower() in ['n','no']:
+                                self.__saveFileName=self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] +"("+str(i)+")"+ ".xlsx"
+                                break
+    
+    def __setSaveFileRoute(self):
+        if self.__savePath == 'none' or not os.path.isdir(self.__savePath):
+            defaultPath = "\\blood tests data\\"
+            if not os.path.isdir(os.getcwd() + defaultPath):
+                Path("blood tests data").mkdir()
+            self.__savePath=os.getcwd() + defaultPath
