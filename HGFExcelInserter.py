@@ -502,21 +502,20 @@ class SaveFileRouteExplorer(GetHeaderContent):
     
     def __checkFilesWithSameRUT(self):
         self.__setSaveFileRoute()
-        fileRUTRegex=re.compile(rf'{self.__fileRUT}')
+        fileRUTRegex=re.compile(rf'{self.__fileRUT}(?!\(Copia\))')
         for root, dirs, files in os.walk(self.__savePath):
-            for i in range(1,len(files)):
                 for filename in files:
                     foundSameFileName=fileRUTRegex.search(filename)
-                    print(filename)
                     if foundSameFileName:
                         while(True):
-                            userInput = input("Se detectó archivo con mismo RUT del reporte cargado ¿Desea cargar y actualizar el archivo? s/n ")
+                            userInput = input(f'Se detectó archivo con mismo RUT:{filename} ¿Desea cargar y actualizar el archivo? s/n ')
                             if userInput.lower() in ['s','sí','si','yes','y']:
                                 self.__workSheetPath=self.__savePath+filename
                                 break
                             elif userInput.lower() in ['n','no']:
-                                self.__saveFileName=self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] +"("+str(i)+")"+ ".xlsx"
+                                self.__saveFileName=self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] +"(Copia)"+ ".xlsx"
                                 break
+                        break
     
     def __setSaveFileRoute(self):
         if self.__savePath == 'none' or not os.path.isdir(self.__savePath):
