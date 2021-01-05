@@ -1,4 +1,4 @@
-﻿import os
+import os
 import datetime,logging,re
 from openpyxl.styles import Font, Alignment, Border, Side
 from pathlib import Path
