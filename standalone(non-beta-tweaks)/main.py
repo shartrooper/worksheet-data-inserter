@@ -1,4 +1,4 @@
-﻿#! python3
+#! python3
 import sys
 import getDatafromFiles as bt
 import HGFExcelInserter as hgf

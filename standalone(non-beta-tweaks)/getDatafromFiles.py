@@ -1,4 +1,4 @@
-﻿# Refactor of bloodTestsInserter-v2.py using classes
+# Refactor of bloodTestsInserter-v2.py using classes
 import sys, PyPDF2, os, logging, re
 from pikepdf import Pdf
 from openpyxl import Workbook, load_workbook

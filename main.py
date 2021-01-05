@@ -1,4 +1,4 @@
-﻿#! python3
+#! python3
 import logging
 import sys
 import getDatafromFiles as bt
