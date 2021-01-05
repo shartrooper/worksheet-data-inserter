@@ -118,8 +118,8 @@ class GetHeaderContent:
                     self.__patientRUT = rutRegex.search(page)
                     #logging.debug('The patient name : '+self.__patientName.group(1)+' The report date is : '+self.__reportDate.group(0)+'his Chilean RUT is: '+self.__patientRUT.group(1))
                     break
-                else:
-                    raise Exception("Date or Patient's credentials not found")
+            if not self.__patientRUT:
+                raise Exception("Date or Patient's credentials not found")
             self.__wsDate = datetime.date(int(self.__reportDate.group(4)), int(self.__reportDate.group(3)), int(self.__reportDate.group(2))).strftime("%d/%m/%y")
             self.__wsTime = self.__reportDate.group(5)
             return None
