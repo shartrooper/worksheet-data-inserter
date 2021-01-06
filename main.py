@@ -17,7 +17,7 @@ getMac.setLevel(logging.INFO)
 # getmac.DEBUG = 0
 client = getmac.get_mac_address()
 
-def newOrUpdatedWs():
+def newOrUpdatedWs(sheet):
     currentWS.insertAndFormatHeaderData()
     if currentWS.getErrorFlag():
         return True
@@ -30,8 +30,7 @@ def newOrUpdatedWs():
     currentWS.addThinCellBorder()
     currentWS.setDataColumnDimensions()
     currentWS.removeColSurplus()
-    hgf.AdjustCalciumValue(ws,currentWS.getCurrentDateCoordinates())
-    hgf.CreateRecycleWorkSheet(wb,ws,4)
+    hgf.AdjustCalciumValue(sheet,currentWS.getCurrentDateCoordinates())
 
 if (len(sys.argv) >= 5) and (client.upper() in clients):
     # Get arguments from command line.
@@ -48,20 +47,33 @@ if (len(sys.argv) >= 5) and (client.upper() in clients):
     gloss = bt.GetGlossary(glossary).getCollection()
     wb = bt.LoadOrCreateWorkBook(workSheetPath).getWorkBook()
     ws = wb.active
-    header=None
     human=''
+    recycle=hgf.CreateRecycleWorkSheet(wb,ws)
+    recycle.removeRecycleSheet()
     for streamPath in streamPathCollection:
         dataStream = bt.GetDataStreamCollection(streamPath)
         collection = dataStream.getCollection()
         if not collection:
             continue
-        currentWS = hgf.InsertDataInWorkSheet(ws, collection, "Resumen exámenes de laboratorio UPC de Centros de Salud", gloss)
-        catchError=newOrUpdatedWs()
-        if catchError:
-            continue
-        if catchError == 'capped!':
+        for sheet in wb.worksheets:
+            currentWS = hgf.InsertDataInWorkSheet(sheet, collection, "Resumen exámenes de laboratorio UPC de Centros de Salud", gloss)
+            catchError=newOrUpdatedWs(sheet)
+            if catchError and catchError != "capped!":
+                break
+            if catchError == 'capped!':
+                wsIndex=wb.index(sheet)
+                if wsIndex == len(wb.worksheets)-1:
+                    nws=wb.copy_worksheet(sheet)
+                    for col in nws.iter_cols(min_col=2, min_row=4, max_col=12):
+                        for cell in col:
+                            cell.value=''
+                    currentWS = hgf.InsertDataInWorkSheet(nws, collection, "Resumen exámenes de laboratorio UPC de Centros de Salud", gloss)
+                    newOrUpdatedWs(nws)
+                    recycle=hgf.CreateRecycleWorkSheet(wb,nws)
+                continue
+            recycle=hgf.CreateRecycleWorkSheet(wb,sheet)
             break
-    header=currentWS.getHeaderFormat()
+    recycle.createRecycleSheet()
     if not workSheetPath:
         saveFile=savePath+saveFileName
         wb.save(saveFile)
