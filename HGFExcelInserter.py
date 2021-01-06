@@ -523,7 +523,7 @@ class SaveFileRouteExplorer(GetHeaderContent):
                     foundSameFileName=fileRUTRegex.search(filename)
                     if foundSameFileName:
                         while(True):
-                            userInput = input(f'Detectado con mismo RUT: {filename}. ¿Desea cargarlo? s/n ')
+                            userInput = input("Detectado archivo con mismo RUT. \n ¿ Desea cargarlo ? s/n ")
                             if userInput.lower() in ['s','sí','si','yes','y']:
                                 self.__workSheetPath=self.__savePath+filename
                                 break
