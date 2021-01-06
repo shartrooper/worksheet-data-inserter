@@ -195,7 +195,6 @@ class InsertDataInWorkSheet(GetHeaderContent):
                 cell.font = Font(name="Arial", size=8, bold=True)
                 cell.alignment = Alignment(horizontal="center", vertical="center")
             ws.print_title_rows = "1:3"
-            ws.title = "RESULTADOS"
         elif ws['B3'].value != formatDataDic['RUT']:
             print("RUT from loaded worksheet doesn't match the one's PDF!")
             ebt.WriteLog("Patient's RUT mismatch")
@@ -237,18 +236,9 @@ class InsertDataInWorkSheet(GetHeaderContent):
         wsDate=self.getWsDate()
         wsTime=self.getWsTime()
         sl=StyleUtilities()
-        #Verify there are non-empty columns within format column's range
-        for cells in ws['B4':'M4']:
-            for cell in cells:
-                if not cell.value:
-                   break
-                elif cell.coordinate == 'M4':
-                    print('There are not more empty columns anymore!')
-                    ebt.WriteLog('Max Columns format reached!')
-                    self._isCapped=True
         #iterate through columns and insert date's data
         for col in ws.iter_cols(min_col=2, max_col=12):
-            if self.__dateCoordinates:
+            if self.__dateCoordinates or self._isCapped:
                 break
             for cell in col:
                 dateCell = cell.coordinate[0] + str(len(formatDataDic) - 1)
@@ -295,10 +285,18 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
                     break
-                elif cell.coordinate[0] == 'L':
-                    ebt.WriteLog('Max Columns format reached!')
-                    break
                 elif ws[dateCell].value != wsDate or ws[timeCell].value != wsTime:
+                    #Verify there are non-empty columns within format column's range
+                    for cells in ws['B4':'L4']:
+                        for cell in cells:
+                            if not cell.value:
+                                break
+                            elif cell.coordinate == 'L4':
+                                #print('There are not more empty columns anymore!')
+                                #ebt.WriteLog('Max Columns format reached!')
+                                self._isCapped=True
+                    if self._isCapped:
+                        break
                     wsDateParams = wsDate.split("/")
                     colDateParams = ws[dateCell].value.split("/")
                     colTimeCell = ws[timeCell].value
@@ -350,6 +348,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
                     break
+        self.__setWorkSheetTitle()
     # Add tests results to a column
     def insertTestResultData(self):
         currentGlossary=self.__glos
@@ -397,8 +396,18 @@ class InsertDataInWorkSheet(GetHeaderContent):
     #Delete all columns out of format's range
     def removeColSurplus(self):
         self.__ws.delete_cols(13,30)
+    #_isCapped getter
     def isColCapReached(self):
         return self._isCapped
+    #private WsTitle setter
+    def __setWorkSheetTitle(self):
+        ws=self.__ws
+        updates={'first':ws['B4'].value,'last':''}
+        for col in ws.iter_cols(min_col=2,min_row=4,max_row=4,max_col=12,values_only=True):
+            for value in col:
+                if value:
+                    updates['last']=value
+        ws.title=f"{updates['first'].replace('/','')} - {updates['last'].replace('/','')}"
 
 class AdjustCalciumValue:
     
@@ -438,16 +447,22 @@ class AdjustCalciumValue:
 
 class CreateRecycleWorkSheet:
     
-    def __init__(self,workBook,currentWorksheet,startingRow):
+    def __init__(self,workBook,currentWorksheet,startingRow=4):
         self.__ws=currentWorksheet
-        if "RECICLAJE" in workBook.sheetnames:
-            workBook.remove_sheet(workBook["RECICLAJE"])
-        self.__wsr=workBook.copy_worksheet(currentWorksheet)
-        self.__wsr.title="RECICLAJE"
+        self.__wb=workBook
         self.__startRow=startingRow
+        self.__wsr=None
+    
+    def removeRecycleSheet(self):
+        if "RECICLAJE" in self.__wb.sheetnames:
+            self.__wb.remove_sheet(self.__wb["RECICLAJE"])
+
+    def createRecycleSheet(self):
+        self.__wsr=self.__wb.copy_worksheet(self.__ws)
+        self.__wsr.title="RECICLAJE"
         self.__cleanColumnsAndRows()
         self.__insertColumnInRecycleWs()
-
+    
     def __cleanColumnsAndRows(self):
         wsr=self.__wsr
         nullBorder= Border(left=Side(border_style=None,color='FF000000'),
