@@ -61,7 +61,7 @@ INR: inr
 TTPA: ttpa
 Dimero D: Dimero D
 GASES EN SANGRE*
-pH: gases en sangre ph
+pH: gases +en +sangre +ph
 PCO2: p co2
 PO2: p o2
 HCO3: hco3
