@@ -288,10 +288,10 @@ class InsertDataInWorkSheet(GetHeaderContent):
                 elif ws[dateCell].value != wsDate or ws[timeCell].value != wsTime:
                     #Verify there are non-empty columns within format column's range
                     for cells in ws['B4':'L4']:
-                        for cell in cells:
-                            if not cell.value:
+                        for ecell in cells:
+                            if not ecell.value:
                                 break
-                            elif cell.coordinate == 'L4':
+                            elif ecell.coordinate == 'L4':
                                 #print('There are not more empty columns anymore!')
                                 #ebt.WriteLog('Max Columns format reached!')
                                 self._isCapped=True
