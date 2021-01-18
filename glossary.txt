@@ -22,6 +22,7 @@ Ferritina: ferritina
 Amonio: AMONIO PLASMATICO
 lactato: LACTATO EN SANGRE
 LDH: lactato deshidrogenasa
+Cetonemia: CETONEMIA CUANTITATIVA
 Glucosa: glucosa
 BUN:Nitrogeno ureico
 Urea: urea
@@ -60,7 +61,7 @@ INR: inr
 TTPA: ttpa
 Dimero D: Dimero D
 GASES EN SANGRE*
-pH: ph
+pH: gases +en +sangre +ph
 PCO2: p co2
 PO2: p o2
 HCO3: hco3

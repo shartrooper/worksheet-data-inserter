@@ -1,4 +1,4 @@
-﻿# Refactor of bloodTestsInserter-v2.py using classes
+# Refactor of bloodTestsInserter-v2.py using classes
 import sys, PyPDF2, os, logging, re
 from pikepdf import Pdf
 from openpyxl import Workbook, load_workbook
@@ -68,7 +68,7 @@ class GetGlossary:
             if intoList:
                 category = "undefined category"
                 categoryRegex = re.compile(r"[\wáíúéó\s]+(?=\*)", re.IGNORECASE)
-                labelAndKeyRegex = re.compile(r"([\w\d\.\s%ñáíúéó\(\)]+)\s*:\s*([\w\d\.\s%ñáíúéó\(\)]+)", re.IGNORECASE)
+                labelAndKeyRegex = re.compile(r"([+\w\d\.\s%ñáíúéó\(\)]+)\s*:\s*([+\w\d\.\s%ñáíúéó\(\)]+)", re.IGNORECASE)
                 for i in range(0, len(intoList)):
                     categ = categoryRegex.search(intoList[i])
                     if categ:

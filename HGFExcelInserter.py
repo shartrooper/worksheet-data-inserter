@@ -1,5 +1,7 @@
-﻿import datetime,logging,re
+import os
+import datetime,logging,re
 from openpyxl.styles import Font, Alignment, Border, Side
+from pathlib import Path
 import getDatafromFiles as ebt
 
 logging.basicConfig(
@@ -99,7 +101,7 @@ class GetHeaderContent:
         self.__wsDate=None
         self.__wsTime=None
         self.__dateRE = re.compile(r"Fecha Recepci[oó]n\s?:?\s?(([0-3]?[0-9])[\/-]([0-1]?[0-9])[\/-]([1-2][0-9]{3}))\s(\d{2}:\d{2})",re.IGNORECASE)
-        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó]+ +[a-zñáíúéó]+ ?[a-zñáíúéó]* ?[a-zñáíúéó]* ?[a-zñáíúéó]*)",re.IGNORECASE)
+        self.__patientRE = re.compile(r"paciente[\s]*[:]?[\s]*([a-zñáíúéó\.,]+ +[a-zñáíúéó\.,]+ ?[a-zñáíúéó\.,]* ?[a-zñáíúéó\.,]* ?[a-zñáíúéó\.,]*)",re.IGNORECASE)
         self.isError= False
         self.__searchAndSetHeaderParams()
 
@@ -116,13 +118,13 @@ class GetHeaderContent:
                     self.__patientRUT = rutRegex.search(page)
                     #logging.debug('The patient name : '+self.__patientName.group(1)+' The report date is : '+self.__reportDate.group(0)+'his Chilean RUT is: '+self.__patientRUT.group(1))
                     break
-                else:
-                    raise Exception("Date or Patient's credentials not found")
+            if not self.__patientRUT:
+                raise Exception("Date or Patient's credentials not found")
             self.__wsDate = datetime.date(int(self.__reportDate.group(4)), int(self.__reportDate.group(3)), int(self.__reportDate.group(2))).strftime("%d/%m/%y")
             self.__wsTime = self.__reportDate.group(5)
             return None
         except Exception as err:
-            #print("An exception happened: "+str(err))
+            print("An exception happened: "+str(err))
             ebt.WriteLog(str(err))
             self.isError= True
 
@@ -193,9 +195,8 @@ class InsertDataInWorkSheet(GetHeaderContent):
                 cell.font = Font(name="Arial", size=8, bold=True)
                 cell.alignment = Alignment(horizontal="center", vertical="center")
             ws.print_title_rows = "1:3"
-            ws.title = "RESULTADOS"
         elif ws['B3'].value != formatDataDic['RUT']:
-            #print("RUT from loaded worksheet doesn't match the one's PDF!")
+            print("RUT from loaded worksheet doesn't match the one's PDF!")
             ebt.WriteLog("Patient's RUT mismatch")
             self.isError= True
         else:
@@ -235,18 +236,9 @@ class InsertDataInWorkSheet(GetHeaderContent):
         wsDate=self.getWsDate()
         wsTime=self.getWsTime()
         sl=StyleUtilities()
-        #Verify there are non-empty columns within format column's range
-        for cells in ws['B4':'M4']:
-            for cell in cells:
-                if not cell.value:
-                   break
-                elif cell.coordinate == 'M4':
-                    print('There are not more empty columns anymore!')
-                    ebt.WriteLog('Max Columns format reached!')
-                    self._isCapped=True
         #iterate through columns and insert date's data
         for col in ws.iter_cols(min_col=2, max_col=12):
-            if self.__dateCoordinates:
+            if self.__dateCoordinates or self._isCapped:
                 break
             for cell in col:
                 dateCell = cell.coordinate[0] + str(len(formatDataDic) - 1)
@@ -293,10 +285,18 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
                     break
-                elif cell.coordinate[0] == 'L':
-                    ebt.WriteLog('Max Columns format reached!')
-                    break
                 elif ws[dateCell].value != wsDate or ws[timeCell].value != wsTime:
+                    #Verify there are non-empty columns within format column's range
+                    for cells in ws['B4':'L4']:
+                        for ecell in cells:
+                            if not ecell.value:
+                                break
+                            elif ecell.coordinate == 'L4':
+                                #print('There are not more empty columns anymore!')
+                                #ebt.WriteLog('Max Columns format reached!')
+                                self._isCapped=True
+                    if self._isCapped:
+                        break
                     wsDateParams = wsDate.split("/")
                     colDateParams = ws[dateCell].value.split("/")
                     colTimeCell = ws[timeCell].value
@@ -348,6 +348,7 @@ class InsertDataInWorkSheet(GetHeaderContent):
                             if ws.cell(row=cell.row, column=1).border.bottom.style == "medium":
                                 sl.drawBottomBorder(ws,cell.row, nonEmpyCols)
                     break
+        self.__setWorkSheetTitle()
     # Add tests results to a column
     def insertTestResultData(self):
         currentGlossary=self.__glos
@@ -395,8 +396,18 @@ class InsertDataInWorkSheet(GetHeaderContent):
     #Delete all columns out of format's range
     def removeColSurplus(self):
         self.__ws.delete_cols(13,30)
+    #_isCapped getter
     def isColCapReached(self):
         return self._isCapped
+    #private WsTitle setter
+    def __setWorkSheetTitle(self):
+        ws=self.__ws
+        updates={'first':ws['B4'].value,'last':''}
+        for col in ws.iter_cols(min_col=2,min_row=4,max_row=4,max_col=12,values_only=True):
+            for value in col:
+                if value:
+                    updates['last']=value
+        ws.title=f"{updates['first'].replace('/','')} - {updates['last'].replace('/','')}"
 
 class AdjustCalciumValue:
     
@@ -436,16 +447,22 @@ class AdjustCalciumValue:
 
 class CreateRecycleWorkSheet:
     
-    def __init__(self,workBook,currentWorksheet,startingRow):
+    def __init__(self,workBook,currentWorksheet,startingRow=4):
         self.__ws=currentWorksheet
-        if "RECICLAJE" in workBook.sheetnames:
-            workBook.remove_sheet(workBook["RECICLAJE"])
-        self.__wsr=workBook.copy_worksheet(currentWorksheet)
-        self.__wsr.title="RECICLAJE"
+        self.__wb=workBook
         self.__startRow=startingRow
+        self.__wsr=None
+    
+    def removeRecycleSheet(self):
+        if "RECICLAJE" in self.__wb.sheetnames:
+            self.__wb.remove_sheet(self.__wb["RECICLAJE"])
+
+    def createRecycleSheet(self):
+        self.__wsr=self.__wb.copy_worksheet(self.__ws)
+        self.__wsr.title="RECICLAJE"
         self.__cleanColumnsAndRows()
         self.__insertColumnInRecycleWs()
-
+    
     def __cleanColumnsAndRows(self):
         wsr=self.__wsr
         nullBorder= Border(left=Side(border_style=None,color='FF000000'),
@@ -474,3 +491,50 @@ class CreateRecycleWorkSheet:
                     #sl.reassignStyles(wsr,wsrCell.coordinate,False)
                     continue
                 break
+
+class SaveFileRouteExplorer(GetHeaderContent):
+    
+    def __init__(self,savePath,wsPath,report,title='Placeholder'):
+        super().__init__(report,title)
+        self.__fileRUT=self.getHeaderFormat()['RUT']
+        self.__saveFileName= self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] + ".xlsx"
+        #Specified file saving route
+        self.__savePath= savePath
+        #Loaded .xlsx file route
+        self.__workSheetPath=wsPath
+        if wsPath == 'none':
+           self.__workSheetPath=''
+           self.__checkFilesWithSameRUT()
+
+    def getWSPath(self):
+        return self.__workSheetPath
+    
+    def getSaveFileName(self):
+        return self.__saveFileName
+    
+    def getSaveRoute(self):
+        return self.__savePath
+    
+    def __checkFilesWithSameRUT(self):
+        self.__setSaveFileRoute()
+        fileRUTRegex=re.compile(rf'{self.__fileRUT}(?!\(Copia\))')
+        for root, dirs, files in os.walk(self.__savePath):
+                for filename in files:
+                    foundSameFileName=fileRUTRegex.search(filename)
+                    if foundSameFileName:
+                        while(True):
+                            userInput = input("Detectado archivo con mismo RUT. \n ¿ Desea cargarlo ? s/n ")
+                            if userInput.lower() in ['s','sí','si','yes','y']:
+                                self.__workSheetPath=self.__savePath+filename
+                                break
+                            elif userInput.lower() in ['n','no']:
+                                self.__saveFileName=self.getHeaderFormat()['Nombre'] + self.getHeaderFormat()['RUT'] +"(Copia)"+ ".xlsx"
+                                break
+                        break
+    
+    def __setSaveFileRoute(self):
+        if self.__savePath == 'none' or not os.path.isdir(self.__savePath):
+            defaultPath = "\\blood tests data\\"
+            if not os.path.isdir(os.getcwd() + defaultPath):
+                Path("blood tests data").mkdir()
+            self.__savePath=os.getcwd() + defaultPath
